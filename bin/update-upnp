@@ -1,0 +1,32 @@
+#!/bin/sh -e
+##:
+#h: Usage: update-upnp
+#h:
+#h: Read DDNS information from "/etc/upnp".
+##:
+update_upnp() {
+    local tmp redir proto wport laddr lport
+
+    tmp="$(mktemp)"
+    upnpc -l > ${tmp} 2>&1 || true
+
+    if test ! -f /etc/upnp; then
+        echo "Skipping UPNP update, file /etc/upnp does not exist."
+        return 0
+    fi
+    
+    while read -r proto wport laddr lport name; do
+        if ! grep -i "${proto} *${wport}->${laddr}:${lport}" "${tmp}" >/dev/null 2>&1; then
+            upnpc -d ${wport} ${proto}                   || true
+            upnpc -a ${laddr} ${wport} ${lport} ${proto} || true
+        else
+            echo "Up to date: ${proto} ${wport} -> ${laddr}:${lport}"
+        fi
+    done < /etc/upnp
+}
+if test @"$(basename "$0")" = @"update-upnp";then
+    case "${1}" in
+        -h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0";;
+        *)         update_upnp "$@"; exit 0;;
+    esac
+fi

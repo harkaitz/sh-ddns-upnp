@@ -1,0 +1,42 @@
+#!/bin/sh -e
+##:
+#h: Usage: update-ddns
+#h:
+#h: Read DDNS information from "/etc/ddns" and update DDNS
+#h: if needed. Tokens are read from "/etc/tokens/dynu".
+##:
+. dynu
+update_ddns() {
+    local ip_r ip_d domain
+    ip_r="$(dynu public-ip)"
+    if test ! -n "${ip_r}"; then
+        echo "error: Failed fetching the public IP address." >&2
+        return 1
+    fi
+    echo "Current router IP address: ${ip_r}"
+    if test ! -f /etc/ddns; then
+        return 0
+    fi
+    while read -r domain zone ddns
+    do
+        ##
+        ip_d="$(host "${domain}" | sed -n 's|.*has address *||p')"
+        if test ! -n "${ip_d}"; then
+            echo "error: Can't get the IP address for ${domain}." >&2
+            return 1
+        fi
+        ##
+        if test ! @"${ip_d}" = @"${ip_r}"; then
+            echo "error: Updating DDNS for ${domain} $ip_d -> $ip_r" >&2
+            dynu domain-set "${domain}" || true
+        else
+            echo "Not updating DDNS for ${domain}, already set." >&2
+        fi
+    done < /etc/ddns
+}
+if test @"$(basename "$0")" = @"update-ddns";then
+    case "${1}" in
+        -h|--help) sed -n 's/^ *#h: \{0,1\}//p' "$0";;
+        *)         update_ddns "$@"; exit 0;;
+    esac
+fi
