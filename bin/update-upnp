@@ -7,6 +7,11 @@
 update_upnp() {
     local tmp redir proto wport laddr lport
 
+    if ! which upnpc >/dev/null 2>&1; then
+        echo "error: Can't find upnpc command." >&2
+        return 1
+    fi
+    
     tmp="$(mktemp)"
     upnpc -l > ${tmp} 2>&1 || true
 
@@ -15,14 +20,17 @@ update_upnp() {
         return 0
     fi
     
-    while read -r proto wport laddr lport name; do
+    sed 's|\#.*||;/^ *$/d' /etc/upnp | while read -r proto wport laddr lport name
+    do
         if ! grep -i "${proto} *${wport}->${laddr}:${lport}" "${tmp}" >/dev/null 2>&1; then
             upnpc -d ${wport} ${proto}                   || true
             upnpc -a ${laddr} ${wport} ${lport} ${proto} || true
         else
             echo "Up to date: ${proto} ${wport} -> ${laddr}:${lport}"
         fi
-    done < /etc/upnp
+    done
+
+    rm -f "${tmp}"
 }
 if test @"$(basename "$0")" = @"update-upnp";then
     case "${1}" in

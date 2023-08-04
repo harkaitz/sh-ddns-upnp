@@ -1,22 +1,24 @@
-DESTDIR =
-PREFIX  =/usr/local
-
-
+PROJECT=sh-ddns-upnp
+VERSION=1.0.0
+PREFIX=/usr/local
 all:
 clean:
 install:
-update:
-## -- install-sh --
+
+## -- BLOCK:sh --
 install: install-sh
 install-sh:
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
 	cp bin/update-upnp      $(DESTDIR)$(PREFIX)/bin
 	cp bin/dynu             $(DESTDIR)$(PREFIX)/bin
 	cp bin/update-ddns      $(DESTDIR)$(PREFIX)/bin
-## -- install-sh --
-## -- license --
+## -- BLOCK:sh --
+## -- BLOCK:license --
 install: install-license
-install-license: LICENSE
-	mkdir -p $(DESTDIR)$(PREFIX)/share/doc/sh-ddns-upnp
-	cp LICENSE $(DESTDIR)$(PREFIX)/share/doc/sh-ddns-upnp
-## -- license --
+install-license: 
+	mkdir -p $(DESTDIR)$(PREFIX)/share/doc/$(PROJECT)
+	cp LICENSE README.md $(DESTDIR)$(PREFIX)/share/doc/$(PROJECT)
+update: update-license
+update-license:
+	ssnip README.md
+## -- BLOCK:license --
