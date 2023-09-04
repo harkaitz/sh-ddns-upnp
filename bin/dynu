@@ -6,6 +6,7 @@
 #h: with DYNU_API_KEY or /etc/tokens/dynu.
 #h:
 #h: ... show                       : Show configuration.
+#h: ... web                        : Open dashboard.
 #h: ... public-ip                  : Get public IP address.
 #h: ... domain-ls                  : List domains.
 #h: ... domain-id  DOMAIN          : Get domain's ID.
@@ -16,6 +17,7 @@ dynu() {
     shift
     case "${cmd}" in
         show)       dynu_show_variables                         ;;
+        web)        xdg-open "https://www.dynu.com/en-US/ControlPanel" ;;
         public-ip)  dynu_public_ip                              ;;
         domain-ls)  dynu_domain_ls  "$@" | column -s '	' -t    ;;
         domain-id)  dynu_domain_id  "$@"                        ;;

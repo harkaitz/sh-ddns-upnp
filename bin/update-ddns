@@ -27,7 +27,7 @@ update_ddns() {
         fi
         ##
         if test ! @"${ip_d}" = @"${ip_r}"; then
-            echo "error: Updating DDNS for ${domain} $ip_d -> $ip_r" >&2
+            echo "Updating DDNS for ${domain} $ip_d -> $ip_r" >&2
             dynu domain-set "${domain}" || true
         else
             echo "Not updating DDNS for ${domain}, already set." >&2
